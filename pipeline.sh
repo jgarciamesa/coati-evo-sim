@@ -3,15 +3,13 @@
 ################################################################################
 
 # n: number of sequences
-# n=16000
-n=2
+n=16000
 
 # len: max length of sequence
 len=3000
 
 # j: number of parallel jobs
-# j=10
-j=2
+j=10
 
 # t: branch length used for simulations
 t=0.4
@@ -21,25 +19,25 @@ t=0.4
 ################################################################################
 
 # Download gene ID list
-# tput setaf 11; echo "Download sequences               "
-# tput setaf 15
-# time make gene_geneid T=${t}
-# tput setaf 11; echo "Sequences downloaded             "
-# tput setaf 15
+tput setaf 11; echo "Download sequences               "
+tput setaf 15
+time make download_geneid T=${t}
+tput setaf 11; echo "Sequences downloaded             "
+tput setaf 15
 
 # Download sequences
-# tput setaf 11; echo "Download sequences               "
-# tput setaf 15
-# time make download_genes N=${n} -j=4 T=${t}
-# tput setaf 11; echo "Sequences downloaded             "
-# tput setaf 15
+tput setaf 11; echo "Download sequences               "
+tput setaf 15
+time make download_genes N=${n} -j4 T=${t}
+tput setaf 11; echo "Sequences downloaded             "
+tput setaf 15
 
 # Filter sequences
-# tput setaf 11; echo "Filter sequences                 "
-# tput setaf 15
-# time make filter N=${n} LEN=${len} T=${t}
-# tput setaf 11; echo "Sequences filtered"
-# tput setaf 15
+tput setaf 11; echo "Filter sequences                 "
+tput setaf 15
+time make filter N=${n} LEN=${len} T=${t}
+tput setaf 11; echo "Sequences filtered"
+tput setaf 15
 
 # Simulate benchmark alignments
 tput setaf 11; echo "Simulate true alignments         "
