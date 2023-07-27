@@ -93,9 +93,13 @@ results/$(T)/%.res: scripts/results_summary.R
 	@echo -ne "summary stats $*\r"
 	@$(RSCRIPT) $< $* $(T)
 
-.PHONY: results_table
+.PHONY: results_table_dseq
 results_table: scripts/results_report.R | results/$(T)/results_summary.csv
-	@$(RSCRIPT) $< results/$(T)/results_summary.csv
+	@$(RSCRIPT) $< results/$(T)/results_summary.csv dseq
+
+.PHONY: results_table_dpos
+results_table: scripts/results_report.R | results/$(T)/results_summary.csv
+	@$(RSCRIPT) $< results/$(T)/results_summary.csv dpos
 
 results/$(T)/gap_stats/freq-reference.csv: bin/sasi
 	@$< gap frequency results/$(T)/ref_alignments/*.fasta -o $@
