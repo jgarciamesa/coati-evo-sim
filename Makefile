@@ -94,11 +94,11 @@ results/$(T)/%.res: scripts/results_summary.R
 	@$(RSCRIPT) $< $* $(T)
 
 .PHONY: results_table_dseq
-results_table_dseq: scripts/results_report.R | results/$(T)/results_summary.csv
+results_table_dseq: scripts/results_report.R
 	@$(RSCRIPT) $< results/$(T)/results_summary.csv dseq
 
 .PHONY: results_table_dpos
-results_table_dpos: scripts/results_report.R | results/$(T)/results_summary.csv
+results_table_dpos: scripts/results_report.R
 	@$(RSCRIPT) $< results/$(T)/results_summary.csv dpos
 
 results/$(T)/gap_stats/freq-reference.csv: bin/sasi

@@ -7,12 +7,12 @@ summary_table = function(results_file, metric) {
     if(metric == "dseq") {
         metric = data.frame(row.names = "$d_{seq}")
         for(model in models) {
-            dseq[model] = mean(results$dseq[results$model == model], na.rm = TRUE)
+            metric[model] = mean(results$dseq[results$model == model], na.rm = TRUE)
         }
     } else if(metric == "dpos") {
         metric = data.frame(row.names = "$d_{pos}")
         for(model in models) {
-            dseq[model] = mean(results$dpos[results$model == model], na.rm = TRUE)
+            metric[model] = mean(results$dpos[results$model == model], na.rm = TRUE)
         }
     } else {
         stop("Metric option invalid, please use dseq or dpos.")
