@@ -105,7 +105,7 @@ simulate_indels = function(seqA, g, e) {
         # if length of indels is not multiple of 3 redo
         skip = FALSE
         mapply(FUN = function(state, len) {
-            if(state != 'M' && len %%3 != 0) {
+            if(state != 1 && len %%3 != 0) {
                 skip <<- TRUE
             }
         }, rle_res$values, rle_res$lengths)
