@@ -26,7 +26,7 @@ data/human_cds_geneId.tsv: scripts/get_geneId.R
 ################################################################################
 # Download first N sequences from ENSEMBL                                      #
 ################################################################################
-GENES = $(addsuffix .fasta,$(shell head -n${N} data/human_cds_geneId.tsv))
+GENES = $(addsuffix .fasta,$(shell head -n${N} data/human_cds_geneId.tsv 2> /dev/null))
 DOWNLOAD_GENES = $(addprefix data/,$(GENES))
 
 .PHONY: download_genes

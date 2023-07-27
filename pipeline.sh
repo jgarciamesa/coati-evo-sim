@@ -54,10 +54,10 @@ tput setaf 11; echo "Gaps from true data set removed  "
 tput setaf 15
 
 # Align
-tput setaf 11; echo "Remove gaps from true data set   "
+tput setaf 11; echo "Align sequences"
 tput setaf 15
 time make align T=${t} -j${j} -i
-tput setaf 11; echo "Gaps from true data set removed  "
+tput setaf 11; echo "Done aligning sequences"
 tput setaf 15
 
 # Result summary statistics
