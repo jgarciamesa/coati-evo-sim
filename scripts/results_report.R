@@ -1,12 +1,21 @@
-summary_table = function(results_file) {
+summary_table = function(results_file, metric) {
     # read results_summary data
     results = read.csv(results_file, header = TRUE)
     
     models = c("tri-mg", "mar-mg-sum", "mar-mg-max")
-    # extract dseq values for each aligner
-    dseq = data.frame(row.names = "$d_{seq}")
-    for(model in models) {
-        dseq[model] = mean(results$dseq[results$model == model], na.rm = TRUE)
+    # extract metric values for each aligner
+    if(metric == "dseq") {
+        metric = data.frame(row.names = "$d_{seq}")
+        for(model in models) {
+            dseq[model] = mean(results$dseq[results$model == model], na.rm = TRUE)
+        }
+    } else if(metric == "dpos") {
+        metric = data.frame(row.names = "$d_{pos}")
+        for(model in models) {
+            dseq[model] = mean(results$dpos[results$model == model], na.rm = TRUE)
+        }
+    } else {
+        stop("Metric option invalid, please use dseq or dpos.")
     }
 
     ############################################################################
@@ -16,7 +25,7 @@ summary_table = function(results_file) {
     
     # fix row and column names and add to stats table
     colnames(alns) = c("Perfect alignments", "Best alignments", "Imperfect alignments")
-    stats_table = rbind(dseq, t(alns))
+    stats_table = rbind(metric, t(alns))
     
     ############################################################################
     # selection (ka ks)
@@ -45,8 +54,8 @@ summary_table = function(results_file) {
 
 if(!interactive()) {
     ARGS = commandArgs(trailingOnly = TRUE)
-    if(length(ARGS) != 1) {
-        stop("Wrong number of arguments, please specify the results file.")
+    if(length(ARGS) != 2) {
+        stop("Wrong number of arguments, please specify the results file and metric.")
     }
-    print(summary_table(ARGS[1]))
+    print(summary_table(ARGS[1], ARGS[2]))
 }
