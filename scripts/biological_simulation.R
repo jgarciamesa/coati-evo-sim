@@ -74,7 +74,7 @@ simulate_indels = function(seqA, g, e) {
                          byrow = TRUE)
     
     # states
-    states = c(1, 2, 3)
+    states = c(M, I, D)
     names(states) = c("M", "I", "D")
     
     repeat{
@@ -86,7 +86,7 @@ simulate_indels = function(seqA, g, e) {
             current_state = sample(states, size = 1, prob = transitionP[prev_state, ])
             path[length(path)+1] = current_state
             prev_state = current_state
-            if(current_state != 2) {  # if current state is not insertion
+            if(current_state != I) {  # if current state is not insertion
                 n_char = n_char + 1
             }
         }
@@ -98,14 +98,14 @@ simulate_indels = function(seqA, g, e) {
         rle_res = rle(path)
         
         # if pattern doesn't start with a match redo
-        if(rle_res$values[1] != 1) {
+        if(rle_res$values[1] != M) {
             next
         }
         
         # if length of indels is not multiple of 3 redo
         skip = FALSE
         mapply(FUN = function(state, len) {
-            if(state != 1 && len %%3 != 0) {
+            if(state != M && len %%3 != 0) {
                 skip <<- TRUE
             }
         }, rle_res$values, rle_res$lengths)
@@ -127,9 +127,9 @@ insert_cigar = function(rle_res, seqA, evolved_seq) {
     
     pos = cumsum(rle_res$lengths)-rle_res$lengths+1
     for(i in seq_along(rle_res$lengths)) {
-        if(rle_res$values[i] == 3) {  # deletion
+        if(rle_res$values[i] == D) {  # deletion
             substr(B, pos[i], pos[i] + rle_res$lengths[i]) = paste0(rep('-', rle_res$lengths[i]), collapse = "")
-        } else if(rle_res$values[i] == 2) {  # insertion
+        } else if(rle_res$values[i] == I) {  # insertion
             A = paste0(substr(A, 1, pos[i] - 1),
                        paste0(rep('-', rle_res$lengths[i]), collapse = ""),
                        substr(A, pos[i], nchar(A)))
@@ -144,7 +144,7 @@ insert_cigar = function(rle_res, seqA, evolved_seq) {
     stopifnot(nchar(A) == nchar(B))
     am = strsplit(A, split = "")[[1]] != "-"
     bm = strsplit(B, split = "")[[1]] != '-'
-    h = ifelse(am, ifelse(bm, 1, 3), ifelse(bm, 2, 0))
+    h = ifelse(am, ifelse(bm, M, D), ifelse(bm, I, 0))
     h = rle(h)
     stopifnot(h$values == rle_res$values, h$lengths == rle_res$lengths)
     as.list(c(A, B))
@@ -182,7 +182,7 @@ simulate_triplet = function(input, output, ...) {
                 file.out = output)
     
     # output to stdout CIGAR string and input file with original (ancestor) sequence
-    cigar = paste0(rle_res$lengths, ifelse(rle_res$values == 1, 'M', ifelse(rle_res$values == 2, 'I', 'D')))
+    cigar = paste0(rle_res$lengths, ifelse(rle_res$values == M, 'M', ifelse(rle_res$values == I, 'I', 'D')))
     print(paste0(
         basename(input), ",",
         paste0(cigar, collapse = ""), ",",
@@ -192,6 +192,9 @@ simulate_triplet = function(input, output, ...) {
 }
 
 if(!interactive()) {
+	M = 1
+	I = 2
+	D = 3
     ARGS = commandArgs(trailingOnly = TRUE)
     len_args = length(ARGS)
     # args required: input, output
