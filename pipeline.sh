@@ -19,10 +19,10 @@ t=0.4
 ################################################################################
 
 # Download gene ID list
-tput setaf 11; echo "Download sequences               "
+tput setaf 11; echo "Download gene ids                "
 tput setaf 15
 time make download_geneid T=${t}
-tput setaf 11; echo "Sequences downloaded             "
+tput setaf 11; echo "Gene ids downloaded              "
 tput setaf 15
 
 # Download sequences
@@ -30,13 +30,6 @@ tput setaf 11; echo "Download sequences               "
 tput setaf 15
 time make download_genes N=${n} -j4 T=${t}
 tput setaf 11; echo "Sequences downloaded             "
-tput setaf 15
-
-# Filter sequences
-tput setaf 11; echo "Filter sequences                 "
-tput setaf 15
-time make filter N=${n} LEN=${len} T=${t}
-tput setaf 11; echo "Sequences filtered"
 tput setaf 15
 
 # Simulate benchmark alignments
@@ -64,6 +57,6 @@ tput setaf 15
 tput setaf 11; echo "Compute result summary statistics"
 tput setaf 15
 time make results/${t}/results_summary.csv -j${j} -i
-time make results_table T=${t}
+time make results_table_dseq T=${t}
 tput setaf 11; echo "Summary statistics computed      "
 tput setaf 15
