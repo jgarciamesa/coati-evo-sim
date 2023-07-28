@@ -39,16 +39,22 @@ data/%.fasta: | scripts/get_sequences.R
 ################################################################################
 # Filter sequences by length												   #
 ################################################################################
+include results/$(T)/filtered.mk
+
+results/$(T)/filtered.mk: results/$(T)/filtered.csv
+	@echo "SIM = $$(cat $<)" > $@
+	@sed -z -i 's/\n/ /g' $@
+	@echo "" >> $@
 
 results/$(T)/filtered.csv: $(DOWNLOAD_GENES) scripts/filter_seqs.sh
 	@bash scripts/filter_seqs.sh $(N) $(LEN) $@
+	@sed -i 's/^/results\/$(T)\/ref_alignments\//' $@
+	@echo "Sequences filtered"
 
 ################################################################################
 # Simulate alignments using coati's triplet model							   #
 ################################################################################
-SIM = $(addprefix results/$(T)/ref_alignments/,$(shell cat results/$(T)/filtered.csv | head -n$(N) 2> /dev/null))
-
-results/$(T)/ref_alignments.csv: $(SIM) | results/$(T)/filtered.csv
+results/$(T)/ref_alignments.csv: $(SIM) results/$(T)/filtered.mk
 	@echo "Done creating reference alignments                   "
 	@sed -i '1 i\ensembl_id,cigar,brlen,omega' $@
 
@@ -56,7 +62,7 @@ SIM_R = scripts/biological_simulation.R scripts/MG94.R scripts/write_fasta.R
 
 results/$(T)/ref_alignments/%.fasta: $(SIM_R)
 	@echo -ne "Creating reference alignment $*\r"
-	@timeout 20s $(RSCRIPT) $< data/$*.fasta $@ 0.4 | cut -d '"' -f 2 >> results/$(T)/ref_alignments.csv
+	@timeout 20s $(RSCRIPT) $< data/$*.fasta $@ $(T) | cut -d '"' -f 2 >> results/$(T)/ref_alignments.csv
 
 ################################################################################
 # Create reference alignments with no gaps for testing                         #
@@ -129,6 +135,7 @@ results/$(T)/figures/gap-%.pdf: scripts/plot_gap_stats.R
 
 clean_pipeline:
 	rm -f results/$(T)/filtered.csv
+	rm -f results/$(T)/filtered.mk
 	rm -f results/$(T)/ref_alignments.csv
 	rm -f results/$(T)/no_gaps_ref/*.fasta
 	rm -f results/$(T)/ref_alignments/*.fasta
