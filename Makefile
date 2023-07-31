@@ -37,7 +37,7 @@ data/%.fasta: | scripts/get_sequences.R
 	@echo -ne "Downloaded " $* "("$(shell ls data/*.fasta | wc -l 2> /dev/null)" out of ${N}).\r"
 
 ################################################################################
-# Filter sequences by length												   #
+# Filter sequences by length                                                   #
 ################################################################################
 include results/$(T)/filtered.mk
 
@@ -52,7 +52,7 @@ results/$(T)/filtered.csv: $(DOWNLOAD_GENES) scripts/filter_seqs.sh
 	@echo "Sequences filtered"
 
 ################################################################################
-# Simulate alignments using coati's triplet model							   #
+# Simulate alignments using coati's triplet model                              #
 ################################################################################
 results/$(T)/ref_alignments.csv: $(SIM) results/$(T)/filtered.mk
 	@echo "Done creating reference alignments                   "
@@ -73,7 +73,7 @@ no_gaps_reference:
 	@bash scripts/rem_gaps_ref.sh $(T)
 
 ################################################################################
-# Align simulated alignments												   #
+# Align simulated alignments                                                   #
 ################################################################################
 ALN = $(shell ls results/$(T)/no_gaps_ref/ 2> /dev/null)
 
@@ -128,7 +128,7 @@ results/$(T)/gap_stats/pos-%.csv: bin/sasi
 results/$(T)/figures/gap-%.pdf: scripts/plot_gap_stats.R
 	@$(RSCRIPT) $< $* $(T)
 ################################################################################
-# Clean pipeline results except gene id list and raw fasta downloads		   #
+# Clean pipeline results except gene id list and raw fasta downloads           #
 ################################################################################
 
 .PHONY: clean_pipeline

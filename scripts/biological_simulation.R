@@ -118,7 +118,7 @@ simulate_indels = function(seqA, g, e) {
     rle_res
 }
     
-insert_cigar = function(rle_res, seqA, evolved_seq) {
+insert_cigar = function(rle_res, seqA, evolved_seq, omega) {
     nucs = c('A', 'C', 'G', 'T')
     p_nucs = c(0.308, 0.185, 0.199, 0.308)  # nucleotide stationary frequencies A,C,G,T
     
@@ -147,7 +147,81 @@ insert_cigar = function(rle_res, seqA, evolved_seq) {
     h = ifelse(am, ifelse(bm, M, D), ifelse(bm, I, 0))
     h = rle(h)
     stopifnot(h$values == rle_res$values, h$lengths == rle_res$lengths)
-    as.list(c(A, B))
+    if(pass_selection(A, B, omega)) {
+        return(as.list(c(A, B)))
+    } else {
+        return(list())
+    }
+}
+
+check_selection = function(A, B, omega) {
+    a = strsplit(A, split = "")[[1]]
+    b = strsplit(B, split = "")[[1]]
+
+    # list of synonymoyse codons
+    codonstr = get_codonstr()
+    syn = syncodons(codonstr)
+    names(syn) = toupper(names(syn))
+    syn = lapply(syn,toupper)
+
+    # check gaps
+    g = which(a == '-')
+    if(length(g) == 0) {  # if not gaps return TRUE
+        return(TRUE)
+    }
+    g.dif = diff(g)
+    g.breaks = which(g.dif != 1)
+    g.breaks = c(g.breaks, length(g))
+    pos = g[1]
+    for(i in g.breaks) {
+        if(pos %% 3 == 1) {  # if phase 0
+            if(runif(1) < omega) {  # check for type I (syn)
+                return(FALSE)
+            }
+            pos = g[i + 1]
+            next
+        }
+
+        # 123 123
+        # grab complete codons around phase1 and phase2
+        if(pos %% 3 == 2) {  # phase1
+            p.start = pos - 1
+            p.end = g[i] + 2
+        } else {  # phase2
+            p.start = pos - 2
+            p.end = g[i] + 1
+        }
+        codA = a[p.start:p.end]
+        codA = paste0(codA[codA != '-'], collapse = "")
+        codB.char = b[p.start:p.end]
+        codB = c()
+        for(i in seq(1, length(codB.char), 3)) {
+            codB = c(codB, paste0(codB.char[i:(i+2)], collapse = ""))
+        }
+        if(any(codB %in% syn[codA][[1]])) {  # check for type I (syn)
+            if(runif(1) < omega) {
+                return(FALSE)
+            }
+        } else {
+            if(runif(1) > omega) {  # check for type II (nonsyn)
+                return(FALSE)
+            }
+        }
+        pos = g[i + 1]
+    }
+    return(TRUE)
+}
+
+pass_selection = function(A, B, omega) {
+    if(!check_selection(A, B, omega)) {  # check insertions
+        return(FALSE)
+    }
+
+    if(!check_selection(B, A, omega)) {  # check deletions
+        return(FALSE)
+    }
+
+    return(TRUE)
 }
 
 
@@ -169,8 +243,13 @@ simulate_triplet = function(input, output, ...) {
     
     set.seed(sum(utf8ToInt(basename(output))))
     evolved_seq = simulate_subs(seqA, params$brlen, params$omega)
-    rle_res = simulate_indels(seqA, params$g, params$e)
-    seqs = insert_cigar(rle_res, seqA, evolved_seq)
+    repeat{
+        rle_res = simulate_indels(seqA, params$g, params$e)
+        seqs = insert_cigar(rle_res, seqA, evolved_seq, params$omega)
+        if(length(seqs) == 2) {
+            break
+        }
+    }
     
     # fix issues with seqinr
     source("scripts/write_fasta.R")
