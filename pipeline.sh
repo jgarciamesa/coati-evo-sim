@@ -57,6 +57,10 @@ tput setaf 15
 tput setaf 11; echo "Compute result summary statistics"
 tput setaf 15
 time make results/${t}/results_summary.csv -j${j} -i
+make results/${t}/gap_stats/{freq,phase,pos}-reference.csv
+make results/${t}/gap_stats/{freq,phase,pos}-tri-mg.csv
+make results/${t}/gap_stats/{freq,phase,pos}-mar-mg-sum.csv
+make results/${t}/gap_stats/{freq,phase,pos}-mar-mg-max.csv
 time make results_table_dseq T=${t}
 tput setaf 11; echo "Summary statistics computed      "
 tput setaf 15
