@@ -141,5 +141,6 @@ clean_pipeline:
 	rm -f results/$(T)/ref_alignments/*.fasta
 	rm -f results/$(T)/aln/{tri-mg,mar-mg-sum,mar-mg-max}/*.fasta
 	rm -f results/$(T)/results_summary.csv
+	rm -f results/$(T)/gap_stats/*.csv
 
 include Makefile_aln.mak
