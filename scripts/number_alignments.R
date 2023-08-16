@@ -38,6 +38,9 @@ num_alns = function(filename) {
 
     # imperfect alignments (dseq != 0 when another methods has dseq = 0)
     for(r in 1:(row_s)) {
+        if(any(is.na(dseq[r,]))) {
+            next
+        }
         if(min(dseq[r, ]) == 0){
             for(i in which(dseq[r, ]>0)) {
             results$imperfect[i] = results$imperfect[i] + 1

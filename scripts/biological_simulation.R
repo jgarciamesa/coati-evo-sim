@@ -118,12 +118,12 @@ simulate_indels = function(seqA, g, e) {
     rle_res
 }
     
-insert_cigar = function(rle_res, seqA, evolved_seq, omega) {
+insert_cigar = function(rle_res, des1, des2, omega) {
     nucs = c('A', 'C', 'G', 'T')
     p_nucs = c(0.308, 0.185, 0.199, 0.308)  # nucleotide stationary frequencies A,C,G,T
     
-    A = seqA
-    B = evolved_seq
+    A = des1
+    B = des2
     
     pos = cumsum(rle_res$lengths)-rle_res$lengths+1
     for(i in seq_along(rle_res$lengths)) {
@@ -228,9 +228,9 @@ pass_selection = function(A, B, omega) {
 simulate_triplet = function(input, output, ...) {
     # Triplet model substitution probabilities
     params = data.frame(brlen = 0.184, omega = 0.2, g = 0.001, e = 1 - 1/6)
-    extra_args = list(...)
+    extra_args = c(...)
     if(length(extra_args) > 0) {
-        for(i in length(extra_args)) {
+        for(i in 1:length(extra_args)) {
             params[i] = as.numeric(extra_args[i])
         }
     }
@@ -242,10 +242,11 @@ simulate_triplet = function(input, output, ...) {
                           forceDNAtolower = FALSE)[[1]]
     
     set.seed(sum(utf8ToInt(basename(output))))
-    evolved_seq = simulate_subs(seqA, params$brlen, params$omega)
+    des1 = simulate_subs(seqA, params$brlen/2, params$omega)
+    des2 = simulate_subs(seqA, params$brlen/2, params$omega)
     repeat{
         rle_res = simulate_indels(seqA, params$g, params$e)
-        seqs = insert_cigar(rle_res, seqA, evolved_seq, params$omega)
+        seqs = insert_cigar(rle_res, des1, des2, params$omega)
         if(length(seqs) == 2) {
             break
         }
